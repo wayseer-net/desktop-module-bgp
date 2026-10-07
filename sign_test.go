@@ -40,18 +40,21 @@ func TestMakeSignPackagesTheModule(t *testing.T) {
 	}
 }
 
-// coreCheckout is Wayseer's own source beside this repository, which only Wayseer has; without
-// it the test skips.
+// coreCheckout is Wayseer's own source, which only Wayseer has: in ../../core, beside the
+// modules folder, or ../core; without it the test skips.
 func coreCheckout(t *testing.T) string {
 	t.Helper()
-	core, err := filepath.Abs("../core")
-	if err != nil {
-		t.Fatal(err)
+	for _, rel := range []string{"../../core", "../core"} {
+		core, err := filepath.Abs(rel)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := os.Stat(filepath.Join(core, "cmd", "wayseer")); err == nil {
+			return core
+		}
 	}
-	if _, err := os.Stat(filepath.Join(core, "cmd", "wayseer")); err != nil {
-		t.Skip("no Wayseer source in ../core to build the app and test keys from")
-	}
-	return core
+	t.Skip("no Wayseer source in ../../core or ../core to build the app and test keys from")
+	return ""
 }
 
 // build compiles pkg from the core into dir and returns the program's path.
