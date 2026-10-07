@@ -1,0 +1,19 @@
+# What the module is and may do; `wayseer dev sign` adds its program's sha256, os and arch.
+id: wayseer-labs/bgp         # <publisher>/<name>
+name: BGP (RIS Live)
+description: Entities read from a JSON inventory at a URL.
+version: 0.1.0               # raise it for each package you sign
+contract: 1
+namespace: bgp               # allocated by Wayseer to this module for the marketplace
+# The kinds actions apply to, core or in your namespace, and the actions Wayseer may offer.
+kinds:
+  - {kind: host}
+  - {kind: service}
+  - {kind: database}
+actions:
+  - id: recheck
+    title: Recheck
+    changes: "Nothing: it reads the item from the inventory again and says its status"
+    kinds: [host, service, database]
+network: [configured by user]
+secrets: true
