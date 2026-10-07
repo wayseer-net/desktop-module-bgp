@@ -1,0 +1,44 @@
+bgp/bgp%2Fas/AS64496 "AS64496" ok "" asn=64496
+bgp/bgp%2Fas/AS64497 "AS64497" ok "" asn=64497
+bgp/bgp%2Fas/AS64498 "AS64498" ok "" asn=64498
+bgp/bgp%2Fas/AS64499 "AS64499" ok "" asn=64499
+bgp/bgp%2Fas/AS64500 "AS64500" ok "" asn=64500
+bgp/bgp%2Fas/AS64501 "AS64501" ok "" asn=64501
+bgp/bgp%2Fas/AS64511 "AS64511" ok "" asn=64511
+bgp/bgp%2Fas/AS65536 "AS65536" ok "" asn=65536
+bgp/bgp%2Fas/AS65550 "AS65550" ok "" asn=65550
+bgp/bgp%2Fas/AS65551 "AS65551" ok "" asn=65551
+bgp/bgp%2Fcollector/rrc00 "rrc00" ok "" 
+bgp/bgp%2Fcollector/rrc21 "rrc21" ok "" 
+bgp/bgp%2Fpeer/192.0.2.1@rrc00 "192.0.2.1@rrc00" ok "" asn=64496 collector=rrc00 peer_ip=192.0.2.1
+bgp/bgp%2Fpeer/192.0.2.2@rrc00 "192.0.2.2@rrc00" ok "" asn=64498 collector=rrc00 peer_ip=192.0.2.2
+bgp/bgp%2Fpeer/2001:db8:ffff::1@rrc21 "2001:db8:ffff::1@rrc21" ok "" asn=65536 collector=rrc21 peer_ip=2001:db8:ffff::1
+bgp/bgp%2Fprefix/198.51.100.0%2F24 "198.51.100.0/24" ok "" length=24 origins=[AS65551] peers=1 watched=false
+bgp/bgp%2Fprefix/2001:db8:2::%2F48 "2001:db8:2::/48" ok "" length=48 origins=[AS65550] peers=1 watched=false watched_prefix=2001:db8::/32
+bgp/bgp%2Fprefix/2001:db8::%2F32 "2001:db8::/32" ok "" length=32 origins=[AS65550] peers=1 watched=true
+bgp/bgp%2Fprefix/203.0.113.0%2F24 "203.0.113.0/24" ok "" length=24 origins=[AS64500] peers=1 watched=true
+bgp/bgp%2Fprefix/203.0.113.128%2F25 "203.0.113.128/25" crit "announced by AS64511, not an expected origin" length=25 origins=[AS64511] peers=1 watched=false watched_prefix=203.0.113.0/24
+bgp/bgp%2Fas/AS64496 talks_to bgp/bgp%2Fas/AS64497
+bgp/bgp%2Fas/AS64496 talks_to bgp/bgp%2Fas/AS64501
+bgp/bgp%2Fas/AS64496 talks_to bgp/bgp%2Fas/AS64511
+bgp/bgp%2Fas/AS64496 owns bgp/bgp%2Fpeer/192.0.2.1@rrc00
+bgp/bgp%2Fas/AS64497 talks_to bgp/bgp%2Fas/AS64500
+bgp/bgp%2Fas/AS64497 talks_to bgp/bgp%2Fas/AS65550
+bgp/bgp%2Fas/AS64497 talks_to bgp/bgp%2Fas/AS65551
+bgp/bgp%2Fas/AS64498 talks_to bgp/bgp%2Fas/AS64499
+bgp/bgp%2Fas/AS64498 owns bgp/bgp%2Fpeer/192.0.2.2@rrc00
+bgp/bgp%2Fas/AS64499 talks_to bgp/bgp%2Fas/AS64500
+bgp/bgp%2Fas/AS64500 owns bgp/bgp%2Fprefix/203.0.113.0%2F24
+bgp/bgp%2Fas/AS64501 talks_to bgp/bgp%2Fas/AS64500
+bgp/bgp%2Fas/AS64511 owns bgp/bgp%2Fprefix/203.0.113.128%2F25
+bgp/bgp%2Fas/AS65536 talks_to bgp/bgp%2Fas/AS64497
+bgp/bgp%2Fas/AS65536 talks_to bgp/bgp%2Fas/AS65550
+bgp/bgp%2Fas/AS65536 owns bgp/bgp%2Fpeer/2001:db8:ffff::1@rrc21
+bgp/bgp%2Fas/AS65550 owns bgp/bgp%2Fprefix/2001:db8:2::%2F48
+bgp/bgp%2Fas/AS65550 owns bgp/bgp%2Fprefix/2001:db8::%2F32
+bgp/bgp%2Fas/AS65551 owns bgp/bgp%2Fprefix/198.51.100.0%2F24
+bgp/bgp%2Fpeer/192.0.2.1@rrc00 member_of bgp/bgp%2Fcollector/rrc00
+bgp/bgp%2Fpeer/192.0.2.2@rrc00 member_of bgp/bgp%2Fcollector/rrc00
+bgp/bgp%2Fpeer/2001:db8:ffff::1@rrc21 member_of bgp/bgp%2Fcollector/rrc21
+bgp/bgp%2Fprefix/2001:db8::%2F32 parent_of bgp/bgp%2Fprefix/2001:db8:2::%2F48
+bgp/bgp%2Fprefix/203.0.113.0%2F24 parent_of bgp/bgp%2Fprefix/203.0.113.128%2F25

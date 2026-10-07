@@ -15,6 +15,9 @@ const Kind = "bgp"
 
 const version = "1"
 
+// eventsKept is how many recent events QueryEvents answers from.
+const eventsKept = 1000
+
 // init registers the kind for a build of the app that imports the package.
 func init() { sdk.Register(Kind, func() sdk.Module { return New() }) }
 
@@ -27,7 +30,10 @@ type Module struct {
 	opts    options
 	watch   watch
 	subs    []subscription
+	state   *state
 	tracker sdk.Tracker
+	sent    map[sdk.EntityRef]sdk.Entity // as last sent
+	events  *sdk.EventLog
 }
 
 // New makes an unconfigured module.
@@ -51,6 +57,7 @@ func (m *Module) Configure(_ context.Context, cfg sdk.Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.name, m.opts, m.watch, m.subs = cfg.Name, o, w, subscriptions(&o)
+	m.state, m.sent, m.events = newState(cfg.Name, &o, w), nil, sdk.NewEventLog(eventsKept)
 	m.health.Store(&sdk.Health{})
 	return nil
 }
@@ -81,11 +88,39 @@ func (m *Module) Run(ctx context.Context, sink sdk.Sink) error {
 	}
 }
 
-// tick returns what changed since the last send.
+// tick closes the interval and returns what changed since the last send, with its events.
 func (m *Module) tick(now time.Time) *sdk.ChangeSet {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	return m.tracker.Changes(nil, nil, now)
+	evs := m.state.flush(now)
+	ents, edges := m.state.world()
+	m.sent = ents
+	cs := m.tracker.Changes(ents, edges, now)
+	cs.Events = evs
+	m.events.Add(evs...)
+	return cs
+}
+
+// Discover returns the working set as it is now.
+func (m *Module) Discover(ctx context.Context) (*sdk.ChangeSet, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var fresh sdk.Tracker
+	ents, edges := m.state.world()
+	return fresh.Changes(ents, edges, time.Now()), nil
+}
+
+// QueryEvents answers from the events sent since the module started.
+func (m *Module) QueryEvents(ctx context.Context, q sdk.EventQuery) ([]sdk.Event, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.events.Query(q), nil
 }
 
 // Health reports whether RIS Live is being read.

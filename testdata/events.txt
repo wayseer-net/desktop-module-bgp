@@ -1,0 +1,4 @@
+warn more-specific bgp/bgp%2Fprefix/2001:db8:2::%2F48: new more-specific 2001:db8:2::/48 of 2001:db8::/32, announced by AS65550
+critical origin bgp/bgp%2Fprefix/203.0.113.128%2F25: possible hijack: 203.0.113.128/25 announced by AS64511, expected AS64500 (seen by 192.0.2.1@rrc00)
+info withdrawal bgp/bgp%2Fprefix/203.0.113.0%2F24: 203.0.113.0/24 withdrawn by 192.0.2.2@rrc00; 1 peer still carries it
+info path-change bgp/bgp%2Fprefix/203.0.113.0%2F24: path to 203.0.113.0/24 changed 1 time
