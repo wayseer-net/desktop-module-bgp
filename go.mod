@@ -2,7 +2,10 @@ module github.com/wayseer-net/desktop-module-bgp
 
 go 1.27
 
-require wayseer.dev/sdk v0.1.0
+require (
+	golang.org/x/net v0.57.0
+	wayseer.dev/sdk v0.1.0
+)
 
 require (
 	github.com/ebitengine/purego v0.11.0 // indirect
@@ -16,7 +19,6 @@ require (
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/text v0.42.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260706201446-f0a921348800 // indirect

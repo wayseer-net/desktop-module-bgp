@@ -23,7 +23,8 @@ func init() { sdk.Register(Kind, func() sdk.Module { return New() }) }
 
 // Module reads BGP updates from RIS Live and sends what changed every interval.
 type Module struct {
-	health atomic.Pointer[sdk.Health]
+	health  atomic.Pointer[sdk.Health]
+	dropped atomic.Int64 // messages RIS Live sent that could not be read
 
 	mu      sync.Mutex // guards what follows, shared by Run and the queries
 	name    sdk.ModuleID
@@ -59,15 +60,21 @@ func (m *Module) Configure(_ context.Context, cfg sdk.Config) error {
 	m.name, m.opts, m.watch, m.subs = cfg.Name, o, w, subscriptions(&o)
 	m.state, m.sent, m.events = newState(cfg.Name, &o, w), nil, sdk.NewEventLog(eventsKept)
 	m.health.Store(&sdk.Health{})
+	m.dropped.Store(0)
 	return nil
 }
 
-// Run sends a snapshot, then a delta every interval, until ctx ends.
+// Run reads RIS Live in the background, reconnecting as needed, and sends a snapshot, then a
+// delta every interval, until ctx ends.
 func (m *Module) Run(ctx context.Context, sink sdk.Sink) error {
 	m.mu.Lock()
 	m.tracker.Reset()
 	every := m.opts.Interval
 	m.mu.Unlock()
+	ctx, cancel := context.WithCancel(ctx)
+	listening := make(chan struct{})
+	go func() { defer close(listening); m.listen(ctx) }()
+	defer func() { cancel(); <-listening }()
 	send := sink.Snapshot
 	t := time.NewTimer(0)
 	defer t.Stop()
@@ -123,10 +130,14 @@ func (m *Module) QueryEvents(ctx context.Context, q sdk.EventQuery) ([]sdk.Event
 	return m.events.Query(q), nil
 }
 
-// Health reports whether RIS Live is being read.
+// Health reports whether RIS Live is being read, and any messages that could not be.
 func (m *Module) Health() sdk.Health {
-	if h := m.health.Load(); h != nil {
-		return *h
+	var h sdk.Health
+	if p := m.health.Load(); p != nil {
+		h = *p
 	}
-	return sdk.Health{}
+	if n := m.dropped.Load(); n > 0 {
+		h.Note = fmt.Sprintf("%d message%s from RIS Live could not be read", n, plural(int(n)))
+	}
+	return h
 }

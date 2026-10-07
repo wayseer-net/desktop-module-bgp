@@ -6,3 +6,8 @@ version: 0.1.0               # raise it for each package you sign
 contract: 1
 namespace: bgp               # allocated by Wayseer to this module for the marketplace
 network: [ris-live.ripe.net:443]
+kinds:
+  - {kind: bgp/as, label: AS, plural: ASes, like: cluster}
+  - {kind: bgp/prefix, label: Prefix, plural: Prefixes, like: interface}
+  - {kind: bgp/peer, label: Peer, plural: Peers, like: host}
+  - {kind: bgp/collector, label: Collector, plural: Collectors, like: service}
